@@ -38,6 +38,11 @@ public class Product {
         }
     }
 
+    
+    public Long getId() {
+        return id;
+    }
+
     public UUID getCode() {
         return code;
     }
@@ -69,4 +74,5 @@ public class Product {
     public void setRequiredMaterials(List<ProductRawMaterial> requiredMaterials) {
         this.requiredMaterials = requiredMaterials;
     }
+
 }

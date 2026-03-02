@@ -30,6 +30,10 @@ public class RawMaterial {
         }
     }
 
+    public Long getId() {
+        return id;
+    }
+
     public UUID getCode() {
         return code;
     }
