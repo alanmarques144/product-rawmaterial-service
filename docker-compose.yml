@@ -1,0 +1,10 @@
+services:
+  oracle-db:
+    image: gvenzl/oracle-free:23-slim-faststart
+    container_name: product_rawmaterial_oracle
+    environment:
+      - ORACLE_PASSWORD=prm_pwd
+      - APP_USER=user_prm
+      - APP_PASSWORD=prm@&pwd
+    ports:
+      - "1521:1521"

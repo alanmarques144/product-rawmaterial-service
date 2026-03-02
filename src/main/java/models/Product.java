@@ -29,7 +29,7 @@ public class Product {
     private BigDecimal priceValue;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private List<RawMaterial> requiredMaterials;
+    private List<ProductRawMaterial> requiredMaterials;
 
     @PrePersist
     public void prePersist() {
@@ -60,5 +60,13 @@ public class Product {
 
     public void setPriceValue(BigDecimal priceValue) {
         this.priceValue = priceValue;
+    }
+
+    public List<ProductRawMaterial> getRequiredMaterials() {
+        return requiredMaterials;
+    }
+
+    public void setRequiredMaterials(List<ProductRawMaterial> requiredMaterials) {
+        this.requiredMaterials = requiredMaterials;
     }
 }
