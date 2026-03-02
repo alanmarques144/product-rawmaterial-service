@@ -1,61 +1,159 @@
-# product-rawmaterial-service
 
-This project uses Quarkus, the Supersonic Subatomic Java Framework.
+---
 
-If you want to learn more about Quarkus, please visit its website: <https://quarkus.io/>.
+# Challenge - Production Suggestion API
 
-## Running the application in dev mode
+This repository contains the back-end API for the **Challenge Production Module**, developed as a technical assessment.
 
-You can run your application in dev mode that enables live coding using:
+The system manages the inventory of raw materials, product definitions (Bill of Materials - BOM), and features an optimization algorithm that suggests the most profitable production plan based on current stock availability.
 
-```shell script
-./mvnw quarkus:dev
+---
+
+## 🎯 Project Overview & Requirements Met
+
+This project was built to fulfill the following requirements:
+
+* **Separation of Concerns (RNF002):** Fully decoupled RESTful API architecture.
+* **Database (RNF004):** Uses an Oracle Database.
+* **Framework (RNF005):** Built with **Quarkus**, i'm following a strict layered architecture (`Controller`, `Service`, `Repository`, `Model`, `Util`).
+* **Language (RNF007):** Entire codebase, database schemas, and documentation are written in English.
+* **Functionality (RF001 - RF004):** Complete CRUD operations for Products, Raw Materials, BOM associations, and a dedicated endpoint for production suggestions.
+
+---
+
+## 🛠️ Technologies & Stack
+
+* **Java 17**
+* **Quarkus 3.x**
+* **Hibernate ORM with Panache** (JPA implementation)
+* **Oracle Database 23c Free** (Docker)
+* **JUnit 5 & REST Assured** (Unit and API Integration Testing)
+* **Mockito** (Mocking for isolated tests)
+
+---
+
+## 🏗️ Architecture
+
+The application strictly follows a layered design to ensure maintainability and separation of concerns:
+
+* **Models (`models` / `models.dto`)**
+  Domain entities containing JPA mappings and UUID generation. DTOs are used to transfer data without exposing internal database structures or triggering infinite recursion in JSON serialization.
+
+* **Repositories (`repository`)**
+  Data access layer using the Active Record / Repository pattern via Panache.
+
+* **Services (`service`)**
+  Business logic layer, managing database transactions (`@Transactional`), complex associations between products and materials, and data mapping.
+
+* **Controllers (`controller`)**
+  JAX-RS Resources exposing the REST APIs.
+
+* **Utils (`util`)**
+  Contains the core logic for the Production Suggestion Algorithm, completely isolated from framework dependencies for easy unit testing.
+
+---
+
+## ⚙️ How to Run the Project
+
+### Prerequisites
+
+* **Docker** installed
+* **Java 17+** installed
+* **Maven** (optional — you can use the provided `./mvnw` wrapper)
+
+---
+
+### Step 1: Start the Oracle Database
+
+A `docker-compose.yml` file is provided at the root of the project.
+
+Run:
+
+```bash
+docker compose up -d
 ```
 
-> **_NOTE:_**  Quarkus now ships with a Dev UI, which is available in dev mode only at <http://localhost:8080/q/dev/>.
+> Wait a few moments for the database to fully initialize and accept connections.
 
-## Packaging and running the application
+---
 
-The application can be packaged using:
+### Step 2: Run the Quarkus Application
 
-```shell script
-./mvnw package
+Start the application in development mode (which enables live coding and continuous testing):
+
+```bash
+./mvnw compile quarkus:dev
 ```
 
-It produces the `quarkus-run.jar` file in the `target/quarkus-app/` directory.
-Be aware that it’s not an _über-jar_ as the dependencies are copied into the `target/quarkus-app/lib/` directory.
+> **Note:** Upon the first startup, the `DataBaseSeeder` will automatically populate the database with initial data based on a **Plastics Manufacturing domain** (e.g., HDPE Resin, Blue Masterbatch, Premium Plastic Chairs, and Heavy-Duty Buckets).
+> This allows you to test the API and the algorithm immediately without manual data entry.
 
-The application is now runnable using `java -jar target/quarkus-app/quarkus-run.jar`.
+---
 
-If you want to build an _über-jar_, execute the following command:
+## 🧪 Running Tests
 
-```shell script
-./mvnw package -Dquarkus.package.jar.type=uber-jar
+The application includes robust tests for:
+
+* Core utility algorithms (business rules)
+* REST controllers (using mocked services to isolate the HTTP layer)
+
+To run the full test suite:
+
+```bash
+./mvnw test
 ```
 
-The application, packaged as an _über-jar_, is now runnable using `java -jar target/*-runner.jar`.
+> **Tip:** If running Quarkus in Dev Mode (`quarkus:dev`), simply press the `r` key in the terminal to execute the tests instantly.
 
-## Creating a native executable
+---
 
-You can create a native executable using:
+## 🧠 The Optimization Algorithm
 
-```shell script
-./mvnw package -Dnative
+The core feature of this API is the **Production Suggestion Algorithm**, accessible via:
+
+```
+GET /api/products/suggestions
 ```
 
-Or, if you don't have GraalVM installed, you can run the native executable build in a container using:
+The algorithm uses a **Greedy approach** to maximize expected revenue:
 
-```shell script
-./mvnw package -Dnative -Dquarkus.native.container-build=true
-```
+1. Sorts all available products by their unit price in descending order (highest value first).
+2. Iterates through the products and calculates the maximum quantity that can be produced based on the current stock of required raw materials (identifying the bottleneck material).
+3. Deducts the consumed materials from a simulated in-memory stock map.
+4. Proceeds to the next product using the remaining stock, ensuring high-value items are prioritized.
+5. Returns a detailed DTO containing:
 
-You can then execute your native executable with: `./target/product-rawmaterial-service-1.0.0-SNAPSHOT-runner`
+   * Suggested quantities for each product
+   * Total expected financial value
 
-If you want to learn more about building native executables, please consult <https://quarkus.io/guides/maven-tooling>.
+---
 
-## Related Guides
+## 📡 API Endpoints
 
-- REST ([guide](https://quarkus.io/guides/rest)): A Jakarta REST implementation utilizing build time processing and Vert.x. This extension is not compatible with the quarkus-resteasy extension, or any of the extensions that depend on it.
-- REST Jackson ([guide](https://quarkus.io/guides/rest#json-serialisation)): Jackson serialization support for Quarkus REST. This extension is not compatible with the quarkus-resteasy extension, or any of the extensions that depend on it
-- Hibernate ORM with Panache ([guide](https://quarkus.io/guides/hibernate-orm-panache)): Simplify your persistence code for Hibernate ORM via the active record or the repository pattern
-- JDBC Driver - Oracle ([guide](https://quarkus.io/guides/datasource)): Connect to the Oracle database via JDBC
+All endpoints consume and produce `application/json`.
+
+### Raw Materials API (`/api/raw-materials`)
+
+* `GET /api/raw-materials` → List all raw materials
+* `POST /api/raw-materials` → Create a new raw material
+* `PUT /api/raw-materials/{code}` → Update an existing raw material (searches by UUID)
+* `DELETE /api/raw-materials/{code}` → Delete a raw material
+
+---
+
+### Products API (`/api/products`)
+
+* `GET /api/products` → List all products and their required raw materials (BOM)
+* `POST /api/products` → Create a new product and associate materials
+* `PUT /api/products/{code}` → Update a product and its associations
+* `DELETE /api/products/{code}` → Delete a product
+
+---
+
+### Production Suggestions API
+
+* `GET /api/products/suggestions` → Calculate and return the optimal production plan and total estimated value based on current stock.
+
+---
+
+## 🏆 Developed for Technical Assessment
