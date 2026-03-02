@@ -79,6 +79,12 @@ docker compose up -d
 
 ### Step 2: Run the Quarkus Application
 
+> **Tip (First Run Only):** Before starting the application for the first time, set the database generation strategy to `update` in `src/main/resources/application.properties` so Hibernate automatically creates the required tables:
+> ```properties
+> quarkus.hibernate-orm.database.generation=update
+> ```
+> After the first run and the schema is created, revert it back to `none` to prevent unintended schema changes on subsequent startups.
+
 Start the application in development mode (which enables live coding and continuous testing):
 
 ```bash
