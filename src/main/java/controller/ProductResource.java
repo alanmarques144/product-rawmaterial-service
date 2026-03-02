@@ -30,6 +30,7 @@ public class ProductResource {
     }
 
     @GET
+    @Path("/suggestions")
     public Response getSuggestions() {
         return Response.ok(service.calculateProductionSuggestion()).build();
     }
