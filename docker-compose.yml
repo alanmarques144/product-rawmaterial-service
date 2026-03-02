@@ -5,6 +5,11 @@ services:
     environment:
       - ORACLE_PASSWORD=prm_pwd
       - APP_USER=user_prm
-      - APP_PASSWORD=prm@&pwd
+      - APP_USER_PASSWORD=12345678
+
+    volumes:
+      - oracle-data:/opt/oracle/oradata
     ports:
       - "1521:1521"
+volumes:
+  oracle-data:

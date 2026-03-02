@@ -16,7 +16,7 @@ import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "product")
+@Table(name = "product", schema = "USER_PRM")
 public class Product {
     @Id 
     @GeneratedValue(strategy = GenerationType.IDENTITY)

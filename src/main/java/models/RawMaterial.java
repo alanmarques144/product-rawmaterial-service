@@ -11,7 +11,7 @@ import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "raw_material")
+@Table(name = "raw_material", schema = "USER_PRM")
 public class RawMaterial {
     @Id 
     @GeneratedValue(strategy = GenerationType.IDENTITY)
